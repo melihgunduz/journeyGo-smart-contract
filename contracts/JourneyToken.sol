@@ -30,11 +30,12 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
     }
     
 
+    event JourneyConfirmed(bytes32 indexed journeyHash);
+    event JourneyCreated(bytes32 indexed journeyHash, address driver);
     event TokenPurchased(address indexed from, uint256 amount);
     event TokensBurned(address indexed from, uint256 amount);
     event TokensDistributedTo(address indexed from, uint256 amount);
-    event JourneyConifrmed(bytes32 indexed journeyHash, address passenger);
-    event JourneyCreated(bytes32 indexed journeyHash, address driver);
+    event PaidForJourney(bytes32 indexed journeyHash, address passenger);
     
     error UserHasNotPaid(address _user);
     error RewardsHasNotDistributed(bytes32 journeyHash);
@@ -74,6 +75,7 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
         uint256 tokensToContract = journeyAmount * 15 / 100; // Calculate the token that contract will earn from this journey.
         uint256 tokensToTransfer = journeyAmount - tokensToBurned - tokensToDistributed - tokensToContract; // Calculate the token that driver will get from this journey.
         _transfer(owner(), msg.sender, tokensToTransfer); // Transfer the tokens of the driver.
+        emit JourneyConfirmed(_journeyHash);
     }
 
     // Creating a new journey from the driver.
@@ -122,7 +124,7 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
         journeyMapping[_journeyHash].tokensBurned += tokensToBurn; // Add passenger burn amount to total burn amount of journey.
         journeyMapping[_journeyHash].tokensToDistribute += tokensToDistribute; // Add passenger reward amount to total reward amount of journey.
         journeyMapping[_journeyHash].journeyAmount += amountInWei; // Add passenger journey amount to total journey amount of journey.
-        emit JourneyConifrmed(_journeyHash, msg.sender); // Emit journey confirmed.
+        emit PaidForJourney(_journeyHash, msg.sender); // Emit journey confirmed.
     }
 
     // Users can buy tokens from owner with this function.
