@@ -17,7 +17,7 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
     using Counters for Counters.Counter;
     Counters.Counter private counter;
     
-    uint256 tokenPriceInWei = 1 ether;
+    uint256 tokenPriceInWei = 0.0001 ether;
 
     mapping (bytes32 => Journey) journeyMapping;
 
@@ -37,7 +37,6 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
     event TokensDistributedTo(address indexed from, uint256 amount);
     event PaidForJourney(bytes32 indexed journeyHash, address passenger);
     
-    error UserHasNotPaid(address _user);
     error RewardsHasNotDistributed(bytes32 journeyHash);
 
     modifier checkBalance(address _user, uint256 _amount) {
@@ -58,7 +57,7 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
 
     
     // Burning tokens from journey's burnable amount.
-    function burnTokens(bytes32 _journeyHash) private whenNotPaused returns(uint256) {
+    function burnTokens(bytes32 _journeyHash) private whenNotPaused nonReentrant returns(uint256) {
         uint256 tokensToBurn = journeyMapping[_journeyHash].tokensBurned; // token value to burn
         _burn(owner(), tokensToBurn); // burns tokens from owner address
         emit TokensBurned(_msgSender(), tokensToBurn); // emits TokenBurned event for app
@@ -67,7 +66,7 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
 
 
     // This function will must be called by driver. Driver confirms journey and payments are made.
-    function confirmJourney(bytes32 _journeyHash) public nonReentrant{
+    function confirmJourney(bytes32 _journeyHash) public whenNotPaused nonReentrant{
         require(msg.sender == journeyMapping[_journeyHash].driver, "You are not driver of the this journey."); // Check msg.sender equals to journey driver.
         uint256 tokensToBurned = burnTokens(_journeyHash); // Trigger burnTokens function then equal the returned value to created variable.
         uint256 tokensToDistributed = distributeRewards(_journeyHash); // Trigger distributeRewards function then equal the returned value to created variable.
@@ -80,7 +79,7 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
     }
 
     // Creating a new journey from the driver.
-    function createJourney() public {
+    function createJourney() whenNotPaused public {
         bytes32 journeyHash = generateHash(); // Triggers the generateHash function then created variable will be equals to returned hash
         journeyMapping[journeyHash].driver = msg.sender; // Append driver of journey to journey mapping.
         journeyMapping[journeyHash].passengers.push(msg.sender); // Add driver to the passenger list.
@@ -88,7 +87,7 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
     }
 
     // Distribute rewards to the passengers
-    function distributeRewards(bytes32 _journeyHash) private whenNotPaused returns (uint256) {
+    function distributeRewards(bytes32 _journeyHash) private whenNotPaused returns(uint256) {
         address[] memory _passengers = journeyMapping[_journeyHash].passengers; // Get passenger list to the memory variable.
         require(_passengers.length > 0, "There is no passenger for this journey."); // Check list length (number of passengers).
         uint256 tokensToDistributed = journeyMapping[_journeyHash].tokensToDistribute; // Tokens amount that will be distributed.
@@ -115,8 +114,8 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
     }
 
     // Passenger pays for journey.
-    function payForJourney (bytes32 _journeyHash, uint256 _amount) public checkBalance(_msgSender(), _amount) whenNotPaused nonReentrant{
-        uint256 amountInWei = _amount * 10 ** decimals(); // Convert amount to the wei.
+    function payForJourney (bytes32 _journeyHash, uint256 _amount) public whenNotPaused nonReentrant checkBalance(_msgSender(), _amount) whenNotPaused nonReentrant{
+        uint256 amountInWei = _amount; // Convert amount to the wei.
         uint256 tokensToBurn = amountInWei * 10 / 100; // Calculate the token amount to burn.
         uint256 tokensToDistribute = amountInWei * 15 / 100; //  Calculate the token amount to distribute.
         _transfer(_msgSender(), owner(), amountInWei); // Transfer tokens to the contract owner.
@@ -131,17 +130,18 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
     function purchaseToken() public payable whenNotPaused nonReentrant {
         require(msg.value >= tokenPriceInWei, "Not enough money sent."); // Checks the user inputted value enough for the buy at least one token.
         uint tokensToTransfer = msg.value / tokenPriceInWei; // Converts balance to the token amount.
-        _approve(owner(), _msgSender(), tokensToTransfer * 10 ** decimals()); // Increases user token allowence by owner.
-        transferFrom(owner(), _msgSender(), tokensToTransfer * 10 ** decimals()); // Transfer tokens by owner to user.
+        _approve(owner(), _msgSender(), tokensToTransfer); // Increases user token allowence by owner.
+        transferFrom(owner(), _msgSender(), tokensToTransfer); // Transfer tokens by owner to user.
         _approve(owner(), _msgSender(), 0);
-        emit TokenPurchased(_msgSender(), tokensToTransfer * 10 ** decimals()); // Emits TokenPurchased event.
+        emit TokenPurchased(_msgSender(), tokensToTransfer); // Emits TokenPurchased event.
     }
 
     // Users can sell their tokens to the contract.
-    function sellToken(uint256 _amount) public payable  whenNotPaused nonReentrant {
+    function sellToken(uint256 _amount) public whenNotPaused nonReentrant {
         require(balanceOf(msg.sender) > 0, "User do not have any token."); // Check user tokens.
-        uint256 amountAsWei = _amount * 10 ** decimals(); // Convert amount to wei.
-        _transfer(msg.sender, owner(), amountAsWei); // Transfer tokens from user to the contract owner.
+        require(_amount <= balanceOf(msg.sender), "Insufficient amount.");
+        uint256 amountAsWei = (_amount * tokenPriceInWei); // Convert amount to wei.
+        _transfer(msg.sender, owner(), _amount); // Transfer tokens from user to the contract owner.
          (bool sent, ) = payable(msg.sender).call{value: amountAsWei}(""); // Send crypto to the user.
          require(sent, "Failed to send Ether"); // Check transaction completed or reverted.
     }

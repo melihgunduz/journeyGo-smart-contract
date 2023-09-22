@@ -46,8 +46,8 @@ describe("JourneyToken", function () {
     await journeyTokenInstance.waitForDeployment();
     
     const [owner, addr1] = await ethers.getSigners(); // Getting signers for test from network.
-    await journeyTokenInstance.connect(addr1).purchaseToken({value: ethers.parseEther("1")}) // addr1 user purchasing token from the owner.
-    expect(await journeyTokenInstance.balanceOf(addr1.address)).to.equal(ethers.parseEther("1")) // Check that user did buy the tokens
+    await journeyTokenInstance.connect(addr1).purchaseToken({value: ethers.parseEther("0.0001")}) // addr1 user purchasing token from the owner.
+    expect(await journeyTokenInstance.balanceOf(addr1.address)).to.be.equal(1) // Check that user did buy the tokens
     })
   })
   
@@ -63,10 +63,10 @@ describe("JourneyToken", function () {
     const _event = await journeyTokenInstance.queryFilter("JourneyCreated"); // After createJourney function "JoruneyCreated" event is emitted and filtering here
     const journeyHash = _event[0].args[0]; // Get arguments of event
 
-    await journeyTokenInstance.connect(passenger1).purchaseToken({value: ethers.parseEther("2")}) // passenger1 user purchasing token from the owner.
+    await journeyTokenInstance.connect(passenger1).purchaseToken({value: ethers.parseEther("0.0002")}) // passenger1 user purchasing token from the owner.
     await journeyTokenInstance.connect(passenger1).payForJourney(journeyHash, 1); // passenger1 user paid for the journey.
     const passengerList = await journeyTokenInstance.getJourneyPassengers(journeyHash); // Get passengers of the journey.
-    expect(await journeyTokenInstance.balanceOf(passengerList[1])).to.be.equal(ethers.parseEther("1")) // Check is balance of passenger 1 is decreased.
+    expect(await journeyTokenInstance.balanceOf(passengerList[1])).to.be.equal(1) // Check is balance of passenger 1 is decreased.
 
     });
   });
@@ -78,9 +78,10 @@ describe("JourneyToken", function () {
     await journeyTokenInstance.waitForDeployment();
     
     const [owner, addr1] = await ethers.getSigners(); // Getting signers for test from network.
-    await journeyTokenInstance.connect(addr1).purchaseToken({value: ethers.parseEther("1")}) // addr1 user purchasing token from the owner.
+    await journeyTokenInstance.connect(addr1).purchaseToken({value: ethers.parseEther("0.0006")}) // addr1 user purchasing token from the owner.
     await journeyTokenInstance.connect(addr1).sellToken(1); // addr1 user sell his tokens to the owner.
-    expect(await journeyTokenInstance.balanceOf(addr1.address)).to.be.equal(0) // Check is addr1 user did sell the his tokens.
+    expect(await journeyTokenInstance.balanceOf(addr1.address)).to.be.equal(5) // Check is addr1 user did sell the his tokens.
     })
+
   })
 });
