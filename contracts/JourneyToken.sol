@@ -75,16 +75,16 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
         uint256 tokensToContract = journeyAmount * 15 / 100; // Calculate the token that contract will earn from this journey.
         uint256 tokensToTransfer = journeyAmount - tokensToBurned - tokensToDistributed - tokensToContract; // Calculate the token that driver will get from this journey.
         _transfer(owner(), msg.sender, tokensToTransfer); // Transfer the tokens of the driver.
+        delete journeyMapping[_journeyHash];
         emit JourneyConfirmed(_journeyHash);
     }
 
     // Creating a new journey from the driver.
-    function createJourney() public returns(bytes32){
+    function createJourney() public {
         bytes32 journeyHash = generateHash(); // Triggers the generateHash function then created variable will be equals to returned hash
         journeyMapping[journeyHash].driver = msg.sender; // Append driver of journey to journey mapping.
         journeyMapping[journeyHash].passengers.push(msg.sender); // Add driver to the passenger list.
         emit JourneyCreated(journeyHash, msg.sender);
-        return journeyHash; // Return the hash of the journey.
     }
 
     // Distribute rewards to the passengers
