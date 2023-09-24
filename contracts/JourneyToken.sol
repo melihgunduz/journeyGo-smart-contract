@@ -31,11 +31,11 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
     
 
     event JourneyConfirmed(bytes32 indexed journeyHash);
-    event JourneyCreated(bytes32 indexed journeyHash, address driver);
-    event TokenPurchased(address indexed from, uint256 amount);
-    event TokensBurned(address indexed from, uint256 amount);
-    event TokensDistributedTo(address indexed from, uint256 amount);
-    event PaidForJourney(bytes32 indexed journeyHash, address passenger);
+    event JourneyCreated(bytes32 indexed journeyHash, address indexed driver);
+    event TokenPurchased(address indexed from, uint256 indexed amount);
+    event TokensBurned(address indexed from, uint256 indexed amount);
+    event TokensDistributedTo(address indexed from, uint256 indexed amount);
+    event PaidForJourney(bytes32 indexed journeyHash, address indexed passenger);
     
     error RewardsHasNotDistributed(bytes32 journeyHash);
 
@@ -66,7 +66,7 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
 
 
     // This function will must be called by driver. Driver confirms journey and payments are made.
-    function confirmJourney(bytes32 _journeyHash) public whenNotPaused nonReentrant{
+    function confirmJourney(bytes32 _journeyHash) public whenNotPaused{
         require(msg.sender == journeyMapping[_journeyHash].driver, "You are not driver of the this journey."); // Check msg.sender equals to journey driver.
         uint256 tokensToBurned = burnTokens(_journeyHash); // Trigger burnTokens function then equal the returned value to created variable.
         uint256 tokensToDistributed = distributeRewards(_journeyHash); // Trigger distributeRewards function then equal the returned value to created variable.
@@ -114,7 +114,7 @@ contract JourneyToken is ERC20, ERC20Burnable, Pausable, Ownable, ReentrancyGuar
     }
 
     // Passenger pays for journey.
-    function payForJourney (bytes32 _journeyHash, uint256 _amount) public whenNotPaused nonReentrant checkBalance(_msgSender(), _amount) whenNotPaused nonReentrant{
+    function payForJourney (bytes32 _journeyHash, uint256 _amount) public whenNotPaused checkBalance(_msgSender(), _amount) whenNotPaused nonReentrant{
         uint256 amountInWei = _amount; // Convert amount to the wei.
         uint256 tokensToBurn = amountInWei * 10 / 100; // Calculate the token amount to burn.
         uint256 tokensToDistribute = amountInWei * 15 / 100; //  Calculate the token amount to distribute.
