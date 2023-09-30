@@ -72,6 +72,10 @@ To compile contract follow this code
 ```bash
   npx hardhat compile
 ```
+To test contract follow this code
+```bash
+  npx hardhat test
+```
 To deploy contract follow this code
 ```bash
   npx hardhat run scripts/deploy.ts
