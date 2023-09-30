@@ -56,9 +56,11 @@ Follow the steps to set up the smart contract locally and test, deploy etc.
  npm install
 ```
 4. Create secrets.json at root of the project:
+You can create BSCAPIKEY from https://bscscan.com/myapikey
+MNEMONIC is 12 word secret phrase of your wallet
 ```json
   {
-    "MNEMONIC": "your 12-word seed phrase",
+    "MNEMONIC": "test test test test test .... test",
     "BSCAPIKEY": "bscscanApiKey"
   }
 ```
