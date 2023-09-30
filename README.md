@@ -41,13 +41,13 @@ Follow the steps to set up the smart contract locally and test, deploy etc.
 
 ```bash
 
-  git clone https://github.com/melihgunduz/rise-in-solidity-bnb-chain-bootcamp-september-competition-smart-contract.git
+  git clone https://github.com/melihgunduz/september-competition-smart-contract.git
 ```
 
 2. Navigate to the project directory:
 
 ```bash
-  cd rise-in-solidity-bnb-chain-bootcamp-september-competition-smart-contract
+  cd september-competition-smart-contract
 ```
 
 3. Install required npm packages:
