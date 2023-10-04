@@ -1,4 +1,4 @@
-# rise-in-solidity-bootcamp-september-competition-final-case-smart-contract
+# journeyGo-smart-contract
 This project is a back end part of Rise In Solidity & BNB Chain Development Bootcamp September competition.
 Welcome to the JourneyGo smart contract!
 
@@ -41,13 +41,13 @@ Follow the steps to set up the smart contract locally and test, deploy etc.
 
 ```bash
 
-  git clone https://github.com/melihgunduz/september-competition-smart-contract.git
+  git clone https://github.com/melihgunduz/journeyGo-smart-contract
 ```
 
 2. Navigate to the project directory:
 
 ```bash
-  cd september-competition-smart-contract
+  cd journeyGo-smart-contract
 ```
 
 3. Install required npm packages:
