@@ -1,12 +1,11 @@
 # journeyGo-smart-contract
-This project is a back end part of Rise In Solidity & BNB Chain Development Bootcamp September competition.
+This project is a smart contract part of Rise In Solidity & BNB Chain Development Bootcamp September competition.
 Welcome to the JourneyGo smart contract!
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
-- [Future Ideas](#future-ideas)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
